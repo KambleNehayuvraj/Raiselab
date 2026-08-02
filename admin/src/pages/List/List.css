@@ -1,26 +1,248 @@
+.list {
+    padding: 20px 30px;
+}
+
+.list > p:first-child {
+    font-size: 20px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
 .list-table-format{
     display: grid;
-    grid-template-columns: 0.5fr 2fr 1fr 1fr 0.5fr;
+    grid-template-columns: 0.6fr 2fr 1fr 1fr 1.6fr;
     align-items: center;
     gap: 10px;
     padding: 12px 15px;
     border: 1px solid #cacaca;
+    border-top: none;
     font-size: 13px;
 }
 .list-table-format.title{
     background-color: #f9f9f9;
+    border-top: 1px solid #cacaca;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 12px;
+    color: #2c3e50;
 }
 .list-table-format img{
     width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 6px;
 }
 
-@media (max-width:600px) {
-    .list-table-format{
-        grid-template-columns: 1fr 3fr 1fr;
-        gap: 15px;
+/* Action buttons: separate, theme-matched, clearly distinct */
+.list-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.edit-btn,
+.remove-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.edit-btn {
+  background: linear-gradient(135deg, #2980b9 0%, #3498db 100%);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(41, 128, 185, 0.25);
+}
+
+.edit-btn:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+.remove-btn {
+  background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(192, 57, 43, 0.25);
+}
+
+.remove-btn:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+.edit-btn:active,
+.remove-btn:active {
+  transform: translateY(0) scale(0.97);
+}
+
+/* ===== Mobile: table becomes stacked cards ===== */
+@media (max-width: 700px) {
+    .list {
+        padding: 16px;
     }
+
     .list-table-format.title{
         display: none;
     }
-    
+
+    .list-table {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .list-table-format{
+        grid-template-columns: none;
+        display: grid;
+        grid-template-areas:
+            "image name"
+            "image category"
+            "image price"
+            "actions actions";
+        grid-template-columns: 70px 1fr;
+        row-gap: 6px;
+        column-gap: 14px;
+        border-radius: 10px;
+        padding: 14px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .list-table-format img {
+        grid-area: image;
+        width: 100%;
+        max-width: 70px;
+        height: 70px;
+    }
+
+    .list-table-format p:nth-of-type(1) {
+        grid-area: name;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .list-table-format p:nth-of-type(2) {
+        grid-area: category;
+        color: #7f8c8d;
+        font-size: 12px;
+        text-transform: uppercase;
+    }
+
+    .list-table-format p:nth-of-type(3) {
+        grid-area: price;
+        font-weight: 600;
+        color: #2980b9;
+    }
+
+    .list-actions {
+        grid-area: actions;
+        margin-top: 8px;
+        border-top: 1px solid #eee;
+        padding-top: 10px;
+    }
+
+    .edit-btn,
+    .remove-btn {
+        flex: 1;
+        padding: 10px 0;
+        font-size: 13px;
+    }
+}
+
+/* ===== Edit modal ===== */
+.edit-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 16px;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.edit-modal {
+  background: #fff;
+  border-radius: 12px;
+  padding: 28px;
+  width: 100%;
+  max-width: 620px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.edit-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #f8f9fa;
+}
+
+.edit-modal-header h3 {
+  margin: 0;
+  color: #2c3e50;
+}
+
+.edit-modal-close {
+  font-size: 26px;
+  line-height: 1;
+  color: #888;
+  background: none;
+  border: none;
+}
+
+.edit-modal .form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.edit-modal .add-btn {
+  min-width: 160px;
+}
+
+.edit-modal .cancel-btn {
+  padding: 14px 28px;
+  border: 2px solid #e2e8f0;
+  background: #fff;
+  color: #2c3e50;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.edit-modal .cancel-btn:hover {
+  background: #f8f9fa;
+}
+
+@media (max-width: 600px) {
+  .edit-modal {
+    padding: 18px;
+    max-height: 95vh;
+  }
+
+  .edit-modal .form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .edit-modal .add-btn,
+  .edit-modal .cancel-btn {
+    width: 100%;
+  }
 }

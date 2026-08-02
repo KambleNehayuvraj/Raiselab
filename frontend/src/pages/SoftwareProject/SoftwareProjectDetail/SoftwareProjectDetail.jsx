@@ -1,20 +1,12 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useCart } from '../../../context/CartContext'; // Adjust the path as needed
+import { useCart } from '../../../context/CartContext';
 import styles from './SoftwareProjectDetail.module.css';
-
-// Import images from assets folder
-import ecommerceImg from '../../../assets/e-commerce platform UI mockup.webp';
-import taskManagementImg from '../../../assets/task management app UI mockup.avif';
-import aiChatbotImg from '../../../assets/AI chatbot interface design.png';
-import weatherDashboardImg from '../../../assets/weather dashboard UI.png';
-import socialMediaAnalyticsImg from '../../../assets/social media analytics dashboard.jpg';
-import fitnessTrackerImg from '../../../assets/fitness tracker mobile UI.png';
 
 const ProjectDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { addToCart, isInCart } = useCart();
+  const { addToCart, isInCart, project_list, url } = useCart();
   const [isAdding, setIsAdding] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
   const [formData, setFormData] = useState({
@@ -28,213 +20,30 @@ const ProjectDetail = () => {
   // Contact information - Update these with your actual details
   const contactInfo = {
     whatsapp: '+91-9518731152', // Replace with your WhatsApp number
-    email: 'progify68@gmail.com', // Replace with your email
+    email: 'Raiselab68@gmail.com', // Replace with your email
     responseTime: 'Within 2-4 hours'
   };
 
-  // Software projects data
-  const projects = [
-    {
-      id: 1,
-      title: 'E-Commerce Platform',
-      description: 'Full-stack e-commerce solution with React, Node.js, and MongoDB integration.',
-      category: 'web',
-      difficulty: 'Advanced',
-      image: ecommerceImg,
-      tags: ['React', 'Node.js', 'MongoDB', 'Stripe', 'Redux'],
-      github: '#',
-      demo: '#',
-      price: '₹3999',
-      numericPrice: 3999,
-      features: [
-        'Complete shopping cart functionality',
-        'User authentication and authorization',
-        'Payment gateway integration',
-        'Admin dashboard with analytics',
-        'Inventory management system',
-        'Order tracking and management',
-        'Email notifications',
-        'Responsive design for all devices'
-      ],
-      specifications: {
-        'Frontend': 'React.js, Redux, Material-UI',
-        'Backend': 'Node.js, Express.js',
-        'Database': 'MongoDB, Mongoose',
-        'Authentication': 'JWT, bcrypt',
-        'Payment': 'Stripe API',
-        'Deployment': 'Heroku, Netlify',
-        'Testing': 'Jest, Cypress'
-      },
-      longDescription: 'A comprehensive e-commerce platform built with modern web technologies. Features include user registration, product catalog, shopping cart, secure payment processing, order management, and an admin panel for managing products and orders. The platform is fully responsive and optimized for performance.'
-    },
-    {
-      id: 2,
-      title: 'Task Management App',
-      description: 'Collaborative task management application with real-time updates and team features.',
-      category: 'web',
-      difficulty: 'Intermediate',
-      image: taskManagementImg,
-      tags: ['Vue.js', 'Firebase', 'Real-time', 'PWA'],
-      github: '#',
-      demo: '#',
-      price: '₹4999',
-      numericPrice: 4999,
-      features: [
-        'Real-time task synchronization',
-        'Team collaboration tools',
-        'Project management boards',
-        'Due date reminders',
-        'File attachments',
-        'Progress tracking',
-        'Offline functionality (PWA)',
-        'Mobile responsive design'
-      ],
-      specifications: {
-        'Frontend': 'Vue.js 3, Vuex, Vuetify',
-        'Backend': 'Firebase Firestore',
-        'Authentication': 'Firebase Auth',
-        'Real-time': 'Firebase Realtime Database',
-        'Storage': 'Firebase Storage',
-        'PWA': 'Service Workers, Manifest',
-        'Notifications': 'Firebase Cloud Messaging'
-      },
-      longDescription: 'A modern task management application designed for teams and individuals. Built with Vue.js and Firebase, it offers real-time synchronization, collaborative features, and works offline as a Progressive Web App. Perfect for managing projects, tracking progress, and team coordination.'
-    },
-    {
-      id: 3,
-      title: 'AI Chat Bot',
-      description: 'Intelligent chatbot with natural language processing and machine learning capabilities.',
-      category: 'ai',
-      difficulty: 'Advanced',
-      image: aiChatbotImg,
-      tags: ['Python', 'TensorFlow', 'NLP', 'Flask', 'API'],
-      github: '#',
-      demo: '#',
-      price: '₹15k',
-      numericPrice: 15000,
-      features: [
-        'Natural language understanding',
-        'Context-aware conversations',
-        'Multi-language support',
-        'Integration with popular platforms',
-        'Custom training capabilities',
-        'Analytics and insights',
-        'REST API for easy integration',
-        'Scalable architecture'
-      ],
-      specifications: {
-        'ML Framework': 'TensorFlow, scikit-learn',
-        'NLP': 'NLTK, spaCy, Transformers',
-        'Backend': 'Flask, FastAPI',
-        'Database': 'PostgreSQL, Redis',
-        'Deployment': 'Docker, AWS/GCP',
-        'API': 'RESTful API, WebSocket',
-        'Languages': 'Python 3.9+'
-      },
-      longDescription: 'An advanced AI chatbot system powered by machine learning and natural language processing. Capable of understanding context, maintaining conversations, and learning from interactions. Includes a web interface, REST API, and can be integrated with various messaging platforms.'
-    },
-    {
-      id: 4,
-      title: 'Weather Dashboard',
-      description: 'Interactive weather dashboard with location-based forecasts and data visualization.',
-      category: 'web',
-      difficulty: 'Beginner',
-      image: weatherDashboardImg,
-      tags: ['JavaScript', 'API Integration', 'Charts', 'CSS3'],
-      github: '#',
-      demo: '#',
-      price: '₹3,500',
-      numericPrice: 3500,
-      features: [
-        'Current weather conditions',
-        '7-day weather forecast',
-        'Interactive weather maps',
-        'Location-based services',
-        'Weather alerts and warnings',
-        'Historical weather data',
-        'Customizable dashboard',
-        'Mobile-friendly interface'
-      ],
-      specifications: {
-        'Frontend': 'Vanilla JavaScript, HTML5, CSS3',
-        'Charts': 'Chart.js, D3.js',
-        'APIs': 'OpenWeatherMap, Geolocation',
-        'Maps': 'Leaflet.js, Mapbox',
-        'Storage': 'LocalStorage, IndexedDB',
-        'Build Tools': 'Webpack, Babel',
-        'Styling': 'SCSS, CSS Grid/Flexbox'
-      },
-      longDescription: 'A beautiful and interactive weather dashboard that provides comprehensive weather information. Features current conditions, forecasts, interactive maps, and data visualizations. Built with vanilla JavaScript and modern web APIs for optimal performance.'
-    },
-    {
-      id: 5,
-      title: 'Social Media Analytics',
-      description: 'Analytics platform for social media metrics with data visualization and reporting.',
-      category: 'web',
-      difficulty: 'Advanced',
-      image: socialMediaAnalyticsImg,
-      tags: ['Python', 'Django', 'Data Analysis', 'Charts', 'PostgreSQL'],
-      github: '#',
-      demo: '#',
-      price: '₹4999',
-      numericPrice: 4999,
-      features: [
-        'Multi-platform social media integration',
-        'Real-time analytics dashboard',
-        'Automated report generation',
-        'Engagement metrics tracking',
-        'Competitor analysis',
-        'Sentiment analysis',
-        'Custom KPI monitoring',
-        'Export capabilities'
-      ],
-      specifications: {
-        'Backend': 'Django, Django REST Framework',
-        'Database': 'PostgreSQL, Redis',
-        'Analytics': 'Pandas, NumPy, Matplotlib',
-        'APIs': 'Twitter API, Facebook Graph API',
-        'Frontend': 'React, Chart.js',
-        'Deployment': 'Docker, AWS',
-        'Task Queue': 'Celery, RabbitMQ'
-      },
-      longDescription: 'A comprehensive social media analytics platform that helps businesses track their social media performance across multiple platforms. Provides detailed insights, automated reporting, and competitive analysis with beautiful data visualizations.'
-    },
-    {
-      id: 6,
-      title: 'Mobile Fitness Tracker',
-      description: 'Cross-platform mobile app for fitness tracking with workout plans and progress monitoring.',
-      category: 'mobile',
-      difficulty: 'Intermediate',
-      image: fitnessTrackerImg,
-      tags: ['React Native', 'SQLite', 'Health API', 'Charts'],
-      github: '#',
-      demo: '#',
-      price: '₹7999',
-      numericPrice: 7999,
-      features: [
-        'Workout tracking and logging',
-        'Custom exercise routines',
-        'Progress visualization',
-        'Nutrition tracking',
-        'Goal setting and achievements',
-        'Social sharing features',
-        'Offline data synchronization',
-        'Wearable device integration'
-      ],
-      specifications: {
-        'Framework': 'React Native, Expo',
-        'Database': 'SQLite, Realm',
-        'State Management': 'Redux, Context API',
-        'Health APIs': 'HealthKit (iOS), Google Fit',
-        'Charts': 'Victory Native, React Native Chart Kit',
-        'Navigation': 'React Navigation',
-        'Push Notifications': 'Firebase Cloud Messaging'
-      },
-      longDescription: 'A feature-rich fitness tracking mobile application built with React Native. Supports workout logging, progress tracking, nutrition management, and integrates with popular health platforms. Designed for both iOS and Android with offline capabilities.'
-    }
-  ];
+  // Build the project shape this component expects from the raw DB record
+  const dbProject = project_list.find(p => p._id === id && p.category === 'Software');
 
-  const project = projects.find(p => p.id === parseInt(id));
+  const project = dbProject ? {
+    id: dbProject._id,
+    title: dbProject.name,
+    description: dbProject.description,
+    longDescription: dbProject.longDescription || dbProject.description,
+    difficulty: dbProject.difficulty || 'Intermediate',
+    image: `${url}/images/${dbProject.image}`,
+    tags: dbProject.tags || [],
+    price: `₹${dbProject.price}`,
+    numericPrice: dbProject.price,
+    category: dbProject.category,
+    features: dbProject.features || [],
+    specifications: dbProject.specifications || {},
+    github: dbProject.github || '#',
+    demo: dbProject.demo || '#'
+  } : null;
+
 
   if (!project) {
     return (

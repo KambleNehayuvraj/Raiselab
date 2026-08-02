@@ -55,10 +55,10 @@ const Navbar = () => {
     // Close mobile menu if open
     setIsMenuOpen(false);
     
-    // Scroll to the "Choose Your Project Type" section
-    const projectTypeSection = document.getElementById('project-type-section');
-    if (projectTypeSection) {
-      projectTypeSection.scrollIntoView({ 
+    // Scroll to the projects section on the home page
+    const projectsSection = document.getElementById('projects-section');
+    if (projectsSection) {
+      projectsSection.scrollIntoView({ 
         behavior: 'smooth',
         block: 'start'
       });
@@ -66,7 +66,7 @@ const Navbar = () => {
       // If section doesn't exist on current page, navigate to home and then scroll
       navigate('/');
       setTimeout(() => {
-        const section = document.getElementById('project-type-section');
+        const section = document.getElementById('projects-section');
         if (section) {
           section.scrollIntoView({ 
             behavior: 'smooth',
@@ -153,7 +153,7 @@ const Navbar = () => {
               <path d="M2 12L12 17L22 12" />
             </svg>
           </div>
-          <span className="brand-name">Progify</span>
+          <span className="brand-name">Raiselab</span>
         </div>
 
         {/* Desktop Navigation Links */}
@@ -164,6 +164,7 @@ const Navbar = () => {
           {/* <a href="/order-project" className="nav-link" onClick={handleNavLinkClick}>Order Project</a> */}
           <a href="/how-it-works" className="nav-link" onClick={handleNavLinkClick}>How It Works</a>
           <a href="/about" className="nav-link" onClick={handleNavLinkClick}>About Us</a>
+          <a href="/components" className="nav-link" onClick={handleNavLinkClick}>Electronic Components</a>
         </div>
 
         {/* Actions */}
@@ -250,6 +251,7 @@ const Navbar = () => {
         {/* <a href="/order-project" className="mobile-nav-link" onClick={handleNavLinkClick}>Order Project</a> */}
         <a href="/how-it-works" className="mobile-nav-link" onClick={handleNavLinkClick}>How It Works</a>
         <a href="/about" className="mobile-nav-link" onClick={handleNavLinkClick}>About Us</a>
+        <a href="/components" className="mobile-nav-link" onClick={handleNavLinkClick}>Electronic Components</a>
         
         {/* COMMENTED OUT - Mobile Cart Button removed */}
         {/*

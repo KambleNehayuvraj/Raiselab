@@ -1,162 +1,26 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useCart } from '../../context/CartContext';
 import './HardwareProjects.css';
-
-// Import images from assets folder
-import smartIVFluidImg from '../../assets/smart_iv_fluid.jpg';
-import medicineReminderImg from '../../assets/Medicine Reminder System.jpg';
-import predictiveMaintenanceImg from '../../assets/AI-Powered Predictive Maintenance.jpeg';
-import fallDetectionImg from '../../assets/Vision-Based Fall Detection.webp';
-import smartDoorbellImg from '../../assets/Smart Doorbell with Facial Recognition.avif';
-import airPurifierImg from '../../assets/Embedded Air Purifier Controller.webp';
-import deliveryRobotImg from '../../assets/Autonomous Delivery Robot.webp';
-import windowCleanerImg from '../../assets/Robotic Window Cleaner.jpg';
-import smartParkingImg from '../../assets/Smart Parking Space Detection.webp';
-import smartBicycleLockImg from '../../assets/Embedded System for Smart Bicycle Lock.jpg';
-
-// Personal Wellness
-import fitnessTrackerImg from '../../assets/Personalized Fitness Goal Tracker.png';
-import stressHeadsetImg from '../../assets/Stress-Reducing Headset.png';
 
 const HardwareProjects = () => {
   const navigate = useNavigate();
+  const { project_list, url } = useCart();
   const [activeFilter, setActiveFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
 
-  const projects = [
-    {
-      id: 1,
-      title: "Smart IV Fluid Monitoring and Alert System",
-      description: "System to monitor IV fluid levels, send alerts, and prevent backflow/air embolism through real-time IoT-enabled monitoring.",
-      category: "iot",
-      difficulty: "Intermediate",
-      image: smartIVFluidImg,
-      tags: ["IoT", "Healthcare", "Arduino", "Sensors", "Automation"],
-      price: "₹8K + Components",
-      demo: "#"
-    },
-    {
-      id: 2,
-      title: "IoT-Based Medicine Reminder System for Chronic Patients",
-      description: "IoT-enabled device to remind patients to take medicines on time, track adherence, and sync data with mobile apps.",
-      category: "iot",
-      difficulty: "Beginner",
-      image: medicineReminderImg,
-      tags: ["IoT", "NodeMCU", "RFID", "Blynk", "Cloud"],
-      price: "₹8K + Components",
-      demo: "#"
-    },
-    {
-      id: 3,
-      title: "AI-Powered Predictive Maintenance for Industrial Equipment",
-      description: "AI-driven predictive maintenance using sensor data and machine learning to reduce unplanned downtime.",
-      category: "ai",
-      difficulty: "Advanced",
-      image: predictiveMaintenanceImg,
-      tags: ["AI", "Machine Learning", "IoT", "Python", "TensorFlow", "Dashboard"],
-      price: "₹8K + Components",
-      demo: "#"
-    },
-    {
-      id: 4,
-      title: "Vision-Based Fall Detection for Elderly Home Safety",
-      description: "Deep learning-based fall detection system using camera feeds, real-time alerts to caregivers, and cloud integration.",
-      category: "ai",
-      difficulty: "Advanced",
-      image: fallDetectionImg,
-      tags: ["AI", "Deep Learning", "YOLOv8", "OpenCV", "AWS IoT"],
-      price: "₹8K + Components",
-      demo: "#"
-    },
-    {
-      id: 5,
-      title: "Smart Doorbell with Facial Recognition",
-      description: "Raspberry Pi-based facial recognition doorbell that identifies visitors and alerts homeowners in real time.",
-      category: "embedded",
-      difficulty: "Intermediate",
-      image: smartDoorbellImg,
-      tags: ["Raspberry Pi", "OpenCV", "Facial Recognition", "IoT", "Firebase"],
-      price: "₹8K + Components",
-      demo: "#"
-    },
-    {
-      id: 6,
-      title: "Embedded Air Purifier Controller for Allergy Sufferers",
-      description: "Embedded system to monitor indoor air quality and control purification using smart sensors and automation.",
-      category: "embedded",
-      difficulty: "Intermediate",
-      image: airPurifierImg,
-      tags: ["STM32", "PM2.5 Sensor", "IoT", "PID Control", "Wi-Fi"],
-      price: "₹8K + Components",
-      demo: "#"
-    },
-    {
-      id: 7,
-      title: "Autonomous Delivery Robot for Last-Mile Food Delivery",
-      description: "Robot for short-range autonomous food delivery using GPS navigation, obstacle avoidance, and IoT connectivity.",
-      category: "robotics",
-      difficulty: "Advanced",
-      image: deliveryRobotImg,
-      tags: ["Robotics", "ROS", "GPS", "IoT", "Raspberry Pi"],
-      price: "₹8K + Components",
-      demo: "#"
-    },
-    {
-      id: 8,
-      title: "Robotic Window Cleaner for High-Rise Buildings",
-      description: "Autonomous robotic cleaner with suction and navigation sensors for safe and efficient high-rise window cleaning.",
-      category: "robotics",
-      difficulty: "Intermediate",
-      image: windowCleanerImg,
-      tags: ["Arduino", "Sensors", "Robotics", "Automation"],
-      price: "₹8K + Components",
-      demo: "#"
-    },
-    {
-      id: 9,
-      title: "Smart Parking Space Detection Using Deep Learning",
-      description: "Vision-based system using CCTV and deep learning to detect available parking spots in real time.",
-      category: "iot",
-      difficulty: "Advanced",
-      image: smartParkingImg,
-      tags: ["YOLOv8", "Deep Learning", "OpenCV", "AWS", "IoT"],
-      price: "₹8K + Components",
-      demo: "#"
-    },
-    {
-      id: 10,
-      title: "Embedded System for Smart Bicycle Lock",
-      description: "IoT-enabled smart lock with GPS tracking, BLE connectivity, and theft-prevention alerts for bicycles.",
-      category: "iot",
-      difficulty: "Intermediate",
-      image: smartBicycleLockImg,
-      tags: ["ESP32", "GPS", "BLE", "MQTT", "IoT"],
-      price: "₹8K + Components",
-      demo: "#"
-    },
-    {
-      id: 11,
-      title: "Personalized Fitness Goal Tracker Using Data Analytics",
-      description: "Data-driven fitness tracker that integrates with wearables to provide personalized workout and nutrition plans.",
-      category: "ai",
-      difficulty: "Intermediate",
-      image: fitnessTrackerImg,
-      tags: ["Data Analytics", "R", "Power BI", "Wearables", "APIs"],
-      price: "₹8K + Components",
-      demo: "#"
-    },
-    {
-      id: 12,
-      title: "Stress-Reducing Headset Using Brainwave Entrainment",
-      description: "Wearable headset that uses brainwave entrainment and sound therapy to reduce stress levels in real time.",
-      category: "embedded",
-      difficulty: "Advanced",
-      image: stressHeadsetImg,
-      tags: ["Wearable Tech", "Audio Processing", "IoT", "Microcontrollers"],
-      price: "₹8K + Components",
-      demo: "#"
-    }
-  ];
+  const projects = project_list
+    .filter(p => p.category === 'Hardware')
+    .map(p => ({
+      id: p._id,
+      title: p.name,
+      description: p.description,
+      image: `${url}/images/${p.image}`,
+      difficulty: p.difficulty,
+      tags: p.tags || [],
+      price: `₹${p.price}`,
+      demo: p.demo || '#'
+    }));
 
   const handleViewDetails = (projectId) => {
     navigate(`/hardware-project/${projectId}`);
@@ -170,16 +34,19 @@ const HardwareProjects = () => {
     { key: 'all', label: 'All Projects' },
     { key: 'iot', label: 'IoT Solutions' },
     { key: 'embedded', label: 'Embedded Systems' },
-    { key: 'circuits', label: 'Circuit Design' },
-    { key: 'robotics', label: 'Robotics' },
+    { key: 'circuit', label: 'Circuit Design' },
+    { key: 'robot', label: 'Robotics' },
     { key: 'ai', label: 'AI & Data Analytics' }
   ];
 
   const filteredProjects = projects.filter(project => {
-    const matchesCategory = activeFilter === 'all' || project.category === activeFilter;
-    const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         project.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesCategory =
+      activeFilter === 'all' ||
+      project.tags.some(tag => tag.toLowerCase().includes(activeFilter));
+    const matchesSearch =
+      project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
     return matchesCategory && matchesSearch;
   });
 
@@ -262,7 +129,7 @@ const HardwareProjects = () => {
                       </svg>
                       Demo
                     </a>
-                    <button 
+                    <button
                       className="action-btn primary"
                       onClick={() => handleViewDetails(project.id)}
                     >
@@ -275,13 +142,13 @@ const HardwareProjects = () => {
                   </div>
                 </div>
               </div>
-              
+
               <div className="project-content">
                 <div className="project-header">
                   <h3 className="project-title">{project.title}</h3>
                   <div className="project-meta">
-                    <span 
-                      className="difficulty-badge" 
+                    <span
+                      className="difficulty-badge"
                       style={{ backgroundColor: getDifficultyColor(project.difficulty) }}
                     >
                       {project.difficulty}
@@ -289,9 +156,9 @@ const HardwareProjects = () => {
                     <span className="price-badge">{project.price}</span>
                   </div>
                 </div>
-                
+
                 <p className="project-description">{project.description}</p>
-                
+
                 <div className="project-tags">
                   {project.tags.map(tag => (
                     <span key={tag} className="tag">{tag}</span>
@@ -299,7 +166,7 @@ const HardwareProjects = () => {
                 </div>
 
                 <div className="project-footer">
-                  <button 
+                  <button
                     className="view-details-btn"
                     onClick={() => handleViewDetails(project.id)}
                   >
@@ -327,7 +194,6 @@ const HardwareProjects = () => {
           </div>
         )}
 
-        {/* Request Custom Project Section */}
         <div className="custom-project-section">
           <div className="custom-project-content">
             <div className="custom-project-info">
@@ -361,7 +227,7 @@ const HardwareProjects = () => {
               </div>
             </div>
             <div className="custom-project-action">
-              <button 
+              <button
                 className="request-custom-btn"
                 onClick={handleRequestCustomProject}
               >

@@ -8,8 +8,8 @@ const HowItWorks = () => {
   const handleRequestProject = () => {
     navigate('/request-project');
   };
-  const handleProjectType = () => {
-    navigate('/Project-Type');
+  const handleViewProjects = () => {
+    navigate('/');
   };
 
   const steps = [
@@ -189,7 +189,7 @@ const HowItWorks = () => {
               <button className={styles.btnPrimary} onClick={handleRequestProject}>
                 Request Custom Project
               </button>
-              <button className={styles.btnSecondary} onClick={handleProjectType}>View Our Projects</button>
+              <button className={styles.btnSecondary} onClick={handleViewProjects}>View Our Projects</button>
             </div>
           </div>
         </div>

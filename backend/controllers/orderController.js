@@ -1,58 +1,30 @@
 import orderModel from "../models/orderModel.js";
 import userModel from '../models/userModel.js';
+import Razorpay from "razorpay";
+import crypto from "crypto";
 // import Stripe from "stripe";
 
 // const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-const placeOrder = async (req, res) => {
-    const frontend_url = "http://localhost:5173";
+const razorpayInstance = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET
+});
 
+const placeOrder = async (req, res) => {
     try {
         const newOrder = new orderModel({
-            userId: req.body.userId,
+            userId: req.userId, // from authMiddleware - trust the token, not client-supplied body
             items: req.body.items,
             amount: req.body.amount,
-            address: req.body.address
+            address: req.body.address,
+            payment: req.body.payment || false,
+            paymentMethod: "cod"
         });
         await newOrder.save();
-        await userModel.findByIdAndUpdate(req.body.userId, { cartData: {} });
+        await userModel.findByIdAndUpdate(req.userId, { cartData: {} });
 
-        // Commented out Stripe logic for now
-        /*
-        const line_items = req.body.items.map((item) => ({
-            price_data: {
-                currency: "inr",
-                product_data: {
-                    name: item.name
-                },
-                unit_amount: item.price * 100 * 80
-            },
-            quantity: item.quantity
-        }));
-
-        line_items.push({
-            price_data: {
-                currency: "inr",
-                product_data: {
-                    name: "Delivery Charges"
-                },
-                unit_amount: 160
-            },
-            quantity: 1
-        });
-
-        const session = await stripe.checkout.sessions.create({
-            line_items: line_items,
-            mode: 'payment',
-            success_url: `${frontend_url}/verify?success=true&orderId=${newOrder._id}`,
-            cancel_url: `${frontend_url}/verify?success=false&orderId=${newOrder._id}`,
-        });
-
-        return res.json({ success: true, session_url: session.url });
-        */
-
-        // Temporarily return order success without Stripe session
-        return res.json({ success: true, message: "Order placed successfully (payment skipped)", orderId: newOrder._id });
+        return res.json({ success: true, message: "Order placed successfully", orderId: newOrder._id });
 
     } catch (error) {
         console.log(error);
@@ -60,4 +32,122 @@ const placeOrder = async (req, res) => {
     }
 };
 
-export { placeOrder };
+// Step 1 of online payment: create a Razorpay order for the given amount.
+// This does NOT create an order in our own DB yet - that only happens
+// after the payment signature is verified below.
+const createRazorpayOrder = async (req, res) => {
+    try {
+        const { amount } = req.body; // amount in rupees (₹)
+
+        if (!amount || amount <= 0) {
+            return res.json({ success: false, message: "Invalid amount" });
+        }
+
+        const options = {
+            amount: Math.round(amount * 100), // Razorpay expects amount in paise
+            currency: "INR",
+            receipt: `receipt_${Date.now()}`
+        };
+
+        const razorpayOrder = await razorpayInstance.orders.create(options);
+
+        return res.json({
+            success: true,
+            razorpayOrderId: razorpayOrder.id,
+            amount: razorpayOrder.amount,
+            currency: razorpayOrder.currency,
+            key: process.env.RAZORPAY_KEY_ID // public key id, safe to send to frontend
+        });
+    } catch (error) {
+        console.log(error);
+        return res.json({ success: false, message: "Error creating Razorpay order" });
+    }
+};
+
+// Step 2 of online payment: verify the payment signature Razorpay sends back,
+// and only then save the actual order in our DB and clear the cart.
+const verifyRazorpayPayment = async (req, res) => {
+    try {
+        const {
+            razorpay_order_id,
+            razorpay_payment_id,
+            razorpay_signature,
+            items,
+            amount,
+            address
+        } = req.body;
+
+        if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+            return res.json({ success: false, message: "Missing payment details" });
+        }
+
+        // Recreate the expected signature server-side using our secret key.
+        // NEVER trust a "payment succeeded" flag sent directly from the frontend.
+        const generatedSignature = crypto
+            .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+            .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+            .digest("hex");
+
+        if (generatedSignature !== razorpay_signature) {
+            return res.json({ success: false, message: "Payment verification failed" });
+        }
+
+        // Signature valid - payment is genuine. Now create the order record.
+        const newOrder = new orderModel({
+            userId: req.userId,
+            items,
+            amount,
+            address,
+            payment: true,
+            paymentMethod: "razorpay",
+            razorpayOrderId: razorpay_order_id,
+            razorpayPaymentId: razorpay_payment_id
+        });
+        await newOrder.save();
+        await userModel.findByIdAndUpdate(req.userId, { cartData: {} });
+
+        return res.json({
+            success: true,
+            message: "Payment verified and order placed successfully",
+            orderId: newOrder._id
+        });
+    } catch (error) {
+        console.log(error);
+        return res.json({ success: false, message: "Error verifying payment" });
+    }
+};
+
+// admin: list all orders
+const listOrders = async (req, res) => {
+    try {
+        const orders = await orderModel.find({}).sort({ date: -1 });
+        res.json({ success: true, data: orders });
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: "Error" });
+    }
+};
+
+// user: list this user's own orders
+const userOrders = async (req, res) => {
+    try {
+        const orders = await orderModel.find({ userId: req.userId }).sort({ date: -1 });
+        res.json({ success: true, data: orders });
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: "Error" });
+    }
+};
+
+// admin: update order status
+const updateStatus = async (req, res) => {
+    try {
+        await orderModel.findByIdAndUpdate(req.body.orderId, { status: req.body.status });
+        res.json({ success: true, message: "Status Updated" });
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: "Error" });
+    }
+};
+
+export { placeOrder, listOrders, userOrders, updateStatus, createRazorpayOrder, verifyRazorpayPayment };

@@ -1,7 +1,8 @@
 // routes/projectRoute.js - Fixed with absolute paths
 import express from "express";
-import { addProject,listProject,removeProject} from "../controllers/projectcontroller.js";
+import { addProject,listProject,removeProject,updateProject} from "../controllers/projectcontroller.js";
 import multer from "multer";
+import adminAuth from "../middleware/adminAuth.js";
 
 const projectRouter = express.Router();
 
@@ -15,9 +16,10 @@ const storage = multer.diskStorage({
 
 const upload = multer({storage:storage})
 
-projectRouter.post("/add",upload.single("image"),addProject)
+projectRouter.post("/add",adminAuth,upload.single("image"),addProject)
 projectRouter.get("/list",listProject)
-projectRouter.post("/remove",removeProject);
+projectRouter.post("/remove",adminAuth,removeProject);
+projectRouter.post("/update",adminAuth,upload.single("image"),updateProject);
 
 
 

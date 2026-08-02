@@ -169,11 +169,10 @@ const Projects = () => {
                 </button>
                 
                 <button 
-                  className={isInCart(project.id) ? 'add-to-cart-btn disabled' : 'add-to-cart-btn'}
-                  onClick={() => addToCart(project)}
-                  disabled={isInCart(project.id)}
+                  className={isInCart(project.id) ? 'add-to-cart-btn in-cart' : 'add-to-cart-btn'}
+                  onClick={() => (isInCart(project.id) ? navigate('/cart') : addToCart(project))}
                 >
-                  {isInCart(project.id) ? 'In Cart' : 'Add to Cart'}
+                  {isInCart(project.id) ? 'Go to Cart' : 'Add to Cart'}
                 </button>
               </div>
             </div>

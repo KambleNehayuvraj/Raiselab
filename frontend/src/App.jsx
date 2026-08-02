@@ -13,8 +13,8 @@ import ProjectDetail from './pages/HardwareProjects/ProjectDetail/ProjectDetail'
 import Cart from './pages/Cart/Cart'
 import SoftwareProject from './pages/SoftwareProject/SoftwareProjects'
 import SoftwareProjectDetail from './pages/SoftwareProject/SoftwareProjectDetail/SoftwareProjectDetail'
-import ProjectType from './components/ProjectType/ProjectType'
 import Projects from './Projects' // Import your new Projects component
+import ElectronicComponents from './pages/ElectronicComponents/ElectronicComponents'
 
 const App = () => {
   const [showLogin, setShowLogin] = useState(false)
@@ -30,13 +30,13 @@ const App = () => {
           <Route path='/order' element={<PlaceOrder/>} />
           <Route path='/Requestpro' element={<RequestProject/>} />
           <Route path='/request-project' element={<RequestProject/>} />
-          <Route path='/Project-Type' element={<ProjectType/>} />
           <Route path='/projects' element={<Projects/>} /> {/* New route for all projects */}
           <Route path='/hardware-projects' element={<HardwareProject/>} />
           <Route path="/hardware-project/:id" element={<ProjectDetail/>} />
           <Route path='/software-projects' element={<SoftwareProject/>} />
           <Route path='/SoftwareProjectDetail/:id' element={<SoftwareProjectDetail/>} />
           <Route path="/cart" element={<Cart/>} />
+          <Route path="/components" element={<ElectronicComponents/>} />
         </Routes>
       </div>
       <Footer />

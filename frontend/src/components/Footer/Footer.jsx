@@ -18,7 +18,7 @@ const Footer = () => {
                     <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </div>
-                <span className="logo-text">Progify</span>
+                <span className="logo-text">Raiselab</span>
               </div>
               <p className="company-description">
                 Delivering innovative hardware and software solutions with complete documentation, 
@@ -61,10 +61,10 @@ const Footer = () => {
 
             {/* Project Categories */}
             <div className="footer-section">
-              <h3 className="section-title">Project Categories</h3>
+              <h3 className="section-title">Explore</h3>
               <ul className="footer-links">
-                <li><a href="/hardware-projects">Hardware Projects</a></li>
-                <li><a href="/software-projects">Software Projects</a></li>
+                <li><a href="/">All Projects</a></li>
+                <li><a href="/components">Electronic Components</a></li>
               </ul>
             </div>
 
@@ -101,7 +101,7 @@ const Footer = () => {
                       <polyline points="22,6 12,13 2,6"></polyline>
                     </svg>
                   </div>
-                  <a href="mailto:progify68@gmail.com">progify68@gmail.com</a>
+                  <a href="mailto:Raiselab68@gmail.com">Raiselab68@gmail.com</a>
                 </div>
                 <div className="contact-item">
                   <div className="contact-icon">
@@ -135,7 +135,7 @@ const Footer = () => {
           <div className="footer-bottom">
             <div className="footer-bottom-content">
               <div className="copyright">
-                <p>&copy; 2025 Progify. All rights reserved.</p>
+                <p>&copy; 2026 Raiselab All rights reserved</p>
               </div>
               <div className="footer-bottom-links">
                 <a href="/privacy-policy">Privacy Policy</a>

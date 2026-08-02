@@ -298,15 +298,16 @@
   box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
 }
 
-.add-to-cart-btn.disabled {
-  background: linear-gradient(135deg, #7f8c8d, #6c757d);
-  cursor: not-allowed;
-  box-shadow: none;
+.add-to-cart-btn.in-cart {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
 }
 
-.add-to-cart-btn.disabled:hover {
-  background: linear-gradient(135deg, #7f8c8d, #6c757d);
-  transform: none;
+.add-to-cart-btn.in-cart:hover {
+  background: linear-gradient(135deg, #2980b9, #21618c);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
 }
 
 /* No projects message */

@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { useCart } from '../../context/CartContext';
 import './PlaceOrder.css';
 
 const PlaceOrder = () => {
   const navigate = useNavigate();
-  const { cartItems, getCartTotal, clearCart } = useCart();
+  const { cartItems, getCartTotal, clearCart, token, url } = useCart();
   
   const [orderForm, setOrderForm] = useState({
     // Personal Information
@@ -22,11 +23,7 @@ const PlaceOrder = () => {
     country: 'India',
     
     // Payment Information
-    paymentMethod: 'card',
-    cardNumber: '',
-    expiryDate: '',
-    cvv: '',
-    nameOnCard: '',
+    paymentMethod: 'razorpay',
     
     // Order Notes
     orderNotes: ''
@@ -87,57 +84,159 @@ const PlaceOrder = () => {
       newErrors.phone = 'Please enter a valid 10-digit Indian phone number';
     }
 
-    // Payment validation for card
-    if (orderForm.paymentMethod === 'card') {
-      if (!orderForm.cardNumber.trim()) newErrors.cardNumber = 'Card number is required';
-      if (!orderForm.expiryDate.trim()) newErrors.expiryDate = 'Expiry date is required';
-      if (!orderForm.cvv.trim()) newErrors.cvv = 'CVV is required';
-      if (!orderForm.nameOnCard.trim()) newErrors.nameOnCard = 'Name on card is required';
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmitOrder = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
+      return;
+    }
+
+    if (!token) {
+      alert('Please log in to place an order.');
+      navigate('/login');
       return;
     }
 
     setIsProcessing(true);
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Here you would typically send the order to your backend
-      const orderData = {
-        items: cartItems,
-        customerInfo: orderForm,
-        totals: {
-          subtotal,
-          processingFee,
-          taxAmount,
-          grandTotal
-        },
-        orderDate: new Date().toISOString()
+      const items = cartItems.map(item => ({
+        id: item.id || item._id,
+        name: item.name,
+        image: item.image,
+        price: item.price,
+        quantity: item.quantity || 1
+      }));
+
+      const address = {
+        firstName: orderForm.firstName,
+        lastName: orderForm.lastName,
+        email: orderForm.email,
+        phone: orderForm.phone,
+        address: orderForm.address,
+        city: orderForm.city,
+        state: orderForm.state,
+        zipCode: orderForm.zipCode,
+        country: orderForm.country
       };
 
-      console.log('Order submitted:', orderData);
-      
-      // Clear cart after successful order
-      clearCart();
-      
-      // Navigate to success page or show success message
-      alert('Order placed successfully! You will receive a confirmation email shortly.');
-      navigate('/');
-      
+      if (orderForm.paymentMethod === 'cod') {
+        // Cash on delivery - save the order directly, no payment gateway needed
+        const response = await axios.post(`${url}/api/order/place`, {
+          items,
+          amount: grandTotal,
+          address,
+          payment: false
+        }, { headers: { token } });
+
+        if (response.data.success) {
+          clearCart();
+          alert('Order placed successfully! You will receive a confirmation email shortly.');
+          navigate('/');
+        } else {
+          alert(response.data.message || 'There was an error placing your order. Please try again.');
+        }
+        setIsProcessing(false);
+      } else {
+        // Online payment via Razorpay
+        await handleRazorpayPayment(items, address);
+      }
+
     } catch (error) {
       console.error('Error placing order:', error);
       alert('There was an error placing your order. Please try again.');
-    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleRazorpayPayment = async (items, address) => {
+    if (!window.Razorpay) {
+      alert('Payment gateway failed to load. Please check your internet connection and try again.');
+      setIsProcessing(false);
+      return;
+    }
+
+    try {
+      // Step 1: ask our backend to create a Razorpay order for this amount
+      const { data: createData } = await axios.post(
+        `${url}/api/order/razorpay/create`,
+        { amount: grandTotal },
+        { headers: { token } }
+      );
+
+      if (!createData.success) {
+        alert(createData.message || 'Could not initiate payment. Please try again.');
+        setIsProcessing(false);
+        return;
+      }
+
+      // Step 2: open Razorpay's hosted checkout widget
+      const options = {
+        key: createData.key,
+        amount: createData.amount,
+        currency: createData.currency,
+        name: 'Projify',
+        description: 'Project Purchase',
+        order_id: createData.razorpayOrderId,
+        prefill: {
+          name: `${orderForm.firstName} ${orderForm.lastName}`,
+          email: orderForm.email,
+          contact: orderForm.phone
+        },
+        theme: { color: '#27ae60' },
+        handler: async function (response) {
+          // Step 3: Razorpay confirms payment succeeded on their end.
+          // We now ask OUR backend to verify the signature and save the order.
+          try {
+            const verifyRes = await axios.post(
+              `${url}/api/order/razorpay/verify`,
+              {
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                items,
+                amount: grandTotal,
+                address
+              },
+              { headers: { token } }
+            );
+
+            if (verifyRes.data.success) {
+              clearCart();
+              alert('Payment successful! Your order has been placed.');
+              navigate('/');
+            } else {
+              alert(verifyRes.data.message || 'Payment verification failed. Please contact support.');
+            }
+          } catch (err) {
+            console.error('Error verifying payment:', err);
+            alert('Payment was received but verification failed. Please contact support with your payment ID: ' + response.razorpay_payment_id);
+          } finally {
+            setIsProcessing(false);
+          }
+        },
+        modal: {
+          // User closed the checkout widget without paying
+          ondismiss: function () {
+            setIsProcessing(false);
+          }
+        }
+      };
+
+      const razorpayCheckout = new window.Razorpay(options);
+      razorpayCheckout.on('payment.failed', function (response) {
+        alert('Payment failed: ' + response.error.description);
+        setIsProcessing(false);
+      });
+      razorpayCheckout.open();
+
+    } catch (error) {
+      console.error('Error starting Razorpay payment:', error);
+      alert('There was an error starting the payment. Please try again.');
       setIsProcessing(false);
     }
   };
@@ -153,7 +252,7 @@ const PlaceOrder = () => {
         <div className="empty-order">
           <h2>No items to order</h2>
           <p>Your cart is empty. Please add some items before placing an order.</p>
-          <button className="back-to-shop-btn" onClick={() => navigate('/hardware-projects')}>
+          <button className="back-to-shop-btn" onClick={() => navigate('/')}>
             Start Shopping
           </button>
         </div>
@@ -311,21 +410,11 @@ const PlaceOrder = () => {
                     <input
                       type="radio"
                       name="paymentMethod"
-                      value="card"
-                      checked={orderForm.paymentMethod === 'card'}
+                      value="razorpay"
+                      checked={orderForm.paymentMethod === 'razorpay'}
                       onChange={handleInputChange}
                     />
-                    <span>Credit/Debit Card</span>
-                  </label>
-                  <label className="payment-option">
-                    <input
-                      type="radio"
-                      name="paymentMethod"
-                      value="upi"
-                      checked={orderForm.paymentMethod === 'upi'}
-                      onChange={handleInputChange}
-                    />
-                    <span>UPI Payment</span>
+                    <span>Pay Online (Card / UPI / Netbanking / Wallet)</span>
                   </label>
                   <label className="payment-option">
                     <input
@@ -339,62 +428,10 @@ const PlaceOrder = () => {
                   </label>
                 </div>
 
-                {orderForm.paymentMethod === 'card' && (
-                  <div className="card-details">
-                    <div className="form-group">
-                      <label htmlFor="cardNumber">Card Number *</label>
-                      <input
-                        type="text"
-                        id="cardNumber"
-                        name="cardNumber"
-                        value={orderForm.cardNumber}
-                        onChange={handleInputChange}
-                        placeholder="1234 5678 9012 3456"
-                        className={errors.cardNumber ? 'error' : ''}
-                      />
-                      {errors.cardNumber && <span className="error-message">{errors.cardNumber}</span>}
-                    </div>
-                    <div className="form-row">
-                      <div className="form-group">
-                        <label htmlFor="expiryDate">Expiry Date *</label>
-                        <input
-                          type="text"
-                          id="expiryDate"
-                          name="expiryDate"
-                          value={orderForm.expiryDate}
-                          onChange={handleInputChange}
-                          placeholder="MM/YY"
-                          className={errors.expiryDate ? 'error' : ''}
-                        />
-                        {errors.expiryDate && <span className="error-message">{errors.expiryDate}</span>}
-                      </div>
-                      <div className="form-group">
-                        <label htmlFor="cvv">CVV *</label>
-                        <input
-                          type="text"
-                          id="cvv"
-                          name="cvv"
-                          value={orderForm.cvv}
-                          onChange={handleInputChange}
-                          placeholder="123"
-                          className={errors.cvv ? 'error' : ''}
-                        />
-                        {errors.cvv && <span className="error-message">{errors.cvv}</span>}
-                      </div>
-                    </div>
-                    <div className="form-group">
-                      <label htmlFor="nameOnCard">Name on Card *</label>
-                      <input
-                        type="text"
-                        id="nameOnCard"
-                        name="nameOnCard"
-                        value={orderForm.nameOnCard}
-                        onChange={handleInputChange}
-                        className={errors.nameOnCard ? 'error' : ''}
-                      />
-                      {errors.nameOnCard && <span className="error-message">{errors.nameOnCard}</span>}
-                    </div>
-                  </div>
+                {orderForm.paymentMethod === 'razorpay' && (
+                  <p className="payment-gateway-note">
+                    🔒 You'll be redirected to Razorpay's secure checkout to complete your payment.
+                  </p>
                 )}
               </div>
 
@@ -467,6 +504,8 @@ const PlaceOrder = () => {
                     <div className="spinner"></div>
                     Processing...
                   </>
+                ) : orderForm.paymentMethod === 'razorpay' ? (
+                  `Pay ${formatPrice(grandTotal)}`
                 ) : (
                   `Place Order - ${formatPrice(grandTotal)}`
                 )}

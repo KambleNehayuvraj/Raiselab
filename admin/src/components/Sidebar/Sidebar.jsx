@@ -27,6 +27,14 @@ const Sidebar = () => {
             <img src={assets.list_item} alt="List" />
             <p>List items</p>
           </NavLink>
+          <NavLink to='/add-component'className="Sidebar-option">
+            <img src={assets.add_icon} alt="Add Component" />
+            <p>Add Component</p>
+          </NavLink>
+          <NavLink to='/component-list'className="Sidebar-option">
+            <img src={assets.list_item} alt="Component List" />
+            <p>Component List</p>
+          </NavLink>
           <NavLink to='/orders'className="Sidebar-option">
             <img src={assets.order_icon} alt="Orders" />
             <p>Orders</p>

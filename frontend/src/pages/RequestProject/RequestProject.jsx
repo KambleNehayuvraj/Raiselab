@@ -5,7 +5,7 @@ const RequestProject = () => {
   // Configuration - Replace with your actual contact details
   const contactInfo = {
     whatsapp: '+91-9518731152', // Replace with your WhatsApp number
-    email: 'progify68@gmail.com' // Replace with your email
+    email: 'Raiselab68@gmail.com' // Replace with your email
   };
 
   const [formData, setFormData] = useState({

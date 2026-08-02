@@ -1,103 +1,92 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useCart } from '../../context/CartContext';
 import './PopularProjects.css';
 
-// Import images from assets folder
-import smartIrrigationImg from '../../assets/Smart-Irrigation-Systems.jpeg';
-import aiAttendanceImg from '../../assets/AI Attendance System.png';
-import lineFollowingRobotImg from '../../assets/Line Following Robot.jpg';
+const getDifficultyColor = (difficulty) => {
+  switch (difficulty) {
+    case 'Beginner': return 'blue';
+    case 'Intermediate': return 'orange';
+    case 'Advanced': return 'purple';
+    case 'Expert': return 'red';
+    default: return 'blue';
+  }
+};
 
 const PopularProjects = () => {
-  const projects = [
-    {
-      id: 1,
-      title: "Smart Irrigation System",
-      description: "Automate agricultural watering based on soil moisture data and weather conditions.",
-      image: smartIrrigationImg,
-      difficulty: "Popular",
-      difficultyColor: "green",
-      price: "₹4k+components",
-      priceNote: "+ component cost",
-      tags: ["Arduino", "IoT", "Sensors"],
+  const { project_list, url } = useCart();
+  const navigate = useNavigate();
+
+  // Show all projects across both categories, newest first
+  const projects = [...project_list]
+    .reverse()
+    .map(p => ({
+      id: p._id,
+      title: p.name,
+      description: p.description,
+      image: `${url}/images/${p.image}`,
+      difficulty: p.difficulty || 'Intermediate',
+      difficultyColor: getDifficultyColor(p.difficulty),
+      price: `₹${p.price}`,
+      priceNote: '+ component cost',
+      tags: p.tags || [],
+      category: p.category,
       features: [
         { icon: "📄", text: "Abstract" },
         { icon: "📊", text: "PPT" },
         { icon: "📋", text: "Report" },
         { icon: "🎥", text: "Video" }
       ]
-    },
-    {
-      id: 2,
-      title: "AI Attendance System",
-      description: "Face recognition-based attendance tracking system for educational institutions.",
-      image: aiAttendanceImg,
-      difficulty: "Advanced",
-      difficultyColor: "purple",
-      price: "₹8000",
-      priceNote: "All inclusive",
-      tags: ["Python", "OpenCV", "ML"],
-      features: [
-        { icon: "📄", text: "Abstract" },
-        { icon: "📊", text: "PPT" },
-        { icon: "📋", text: "Report" },
-        { icon: "🎥", text: "Video" }
-      ]
-    },
-    {
-      id: 3,
-      title: "Line Following Robot",
-      description: "Build a robot that automatically follows a path using infrared sensors.",
-      image: lineFollowingRobotImg,
-      difficulty: "Beginner",
-      difficultyColor: "blue",
-      price: "₹2k+components",
-      priceNote: "",
-      tags: ["Arduino", "Robotics", "Electronics"],
-      features: [
-        { icon: "📄", text: "Abstract" },
-        { icon: "📊", text: "PPT" },
-        { icon: "📋", text: "Report" },
-        { icon: "🎥", text: "Video" }
-      ]
+    }));
+
+  const handleViewDetails = (project) => {
+    if (project.category === 'Hardware') {
+      navigate(`/hardware-project/${project.id}`);
+    } else {
+      navigate(`/SoftwareProjectDetail/${project.id}`);
     }
-  ];
+  };
 
   return (
-    <section className="popular-projects-section">
+    <section id="projects-section" className="popular-projects-section">
       <div className="container">
         <div className="section-header">
-          <h2 className="section-title">Popular Projects</h2>
+          <h2 className="section-title">Explore Our Projects</h2>
           <p className="section-subtitle">
-            Take inspiration from our most popular projects. All packages include complete documentation and expert guidance.
+            Browse hardware and software projects together. All packages include complete documentation and expert guidance.
           </p>
         </div>
 
         <div className="projects-grid">
           {projects.map((project) => (
-            <div key={project.id} className="project-card">
+            <div key={project.id} className="project-card" onClick={() => handleViewDetails(project)} style={{ cursor: 'pointer' }}>
               <div className="project-image">
                 <img src={project.image} alt={project.title} />
                 <div className={`difficulty-badge ${project.difficultyColor}`}>
                   {project.difficulty}
                 </div>
+                <div className={`category-badge ${project.category === 'Hardware' ? 'hardware' : 'software'}`}>
+                  {project.category === 'Hardware' ? 'Hardware' : 'Software'}
+                </div>
               </div>
-              
+
               <div className="project-content">
                 <h3 className="project-title">{project.title}</h3>
                 <p className="project-description">{project.description}</p>
-                
+
                 <div className="project-tags">
                   {project.tags.map((tag, index) => (
                     <span key={index} className="tag">{tag}</span>
                   ))}
                 </div>
-                
+
                 <div className="project-price">
                   <div className="price-info">
                     <span className="price">{project.price}</span>
                     <span className="price-note">{project.priceNote}</span>
                   </div>
                 </div>
-                
+
                 <div className="project-features">
                   {project.features.map((feature, index) => (
                     <div key={index} className="feature-item">
@@ -110,8 +99,10 @@ const PopularProjects = () => {
             </div>
           ))}
         </div>
-        
-        
+
+        {projects.length === 0 && (
+          <p style={{ textAlign: 'center', color: '#888' }}>No projects added yet.</p>
+        )}
       </div>
     </section>
   );

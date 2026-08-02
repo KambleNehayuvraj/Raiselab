@@ -98,6 +98,27 @@
   color: #ffffff;
 }
 
+.category-badge {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #ffffff;
+}
+
+.category-badge.hardware {
+  background: rgba(246, 173, 56, 0.9);
+}
+
+.category-badge.software {
+  background: rgba(56, 161, 246, 0.9);
+}
+
 .project-content {
   padding: 25px;
 }

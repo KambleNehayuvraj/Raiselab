@@ -1,19 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useCart } from '../../context/CartContext';
 import './SoftwareProjects.css';
-
-// Import images from assets folder
-import ecommerceImg from '../../assets/e-commerce platform UI mockup.webp';
-import taskManagementImg from '../../assets/task management app UI mockup.avif';
-import aiChatbotImg from '../../assets/AI chatbot interface design.png';
-import weatherDashboardImg from '../../assets/weather dashboard UI.png';
-import socialMediaAnalyticsImg from '../../assets/social media analytics dashboard.jpg';
-import fitnessTrackerImg from '../../assets/fitness tracker mobile UI.png';
 
 const SoftwareProject = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilter, setActiveFilter] = useState('All Projects');
   const navigate = useNavigate();
+  const { project_list, url } = useCart();
 
   const filters = [
     'All Projects',
@@ -24,62 +18,17 @@ const SoftwareProject = () => {
     'Machine Learning'
   ];
 
-  const projects = [
-    {
-      id: 1,
-      title: 'E-Commerce Platform',
-      difficulty: 'ADVANCED',
-      price: '₹3999',
-      description: 'Full-stack e-commerce solution with React, Node.js, and MongoDB integration.',
-      image: ecommerceImg,
-      tags: ['React', 'Node.js', 'MongoDB', 'Stripe', 'Redux']
-    },
-    {
-      id: 2,
-      title: 'Task Management App',
-      difficulty: 'INTERMEDIATE',
-      price: '₹4999',
-      description: 'Collaborative task management application with real-time updates and team features.',
-      image: taskManagementImg,
-      tags: ['Vue.js', 'Firebase', 'Real-time', 'PWA']
-    },
-    {
-      id: 3,
-      title: 'AI Chat Bot',
-      difficulty: 'ADVANCED',
-      price: '₹15k',
-      description: 'Intelligent chatbot with natural language processing and machine learning capabilities.',
-      image: aiChatbotImg,
-      tags: ['Python', 'TensorFlow', 'NLP', 'Flask', 'API']
-    },
-    {
-      id: 4,
-      title: 'Weather Dashboard',
-      difficulty: 'BEGINNER',
-      price: '₹3,500',
-      description: 'Interactive weather dashboard with location-based forecasts and data visualization.',
-      image: weatherDashboardImg,
-      tags: ['JavaScript', 'API Integration', 'Charts', 'CSS3']
-    },
-    {
-      id: 5,
-      title: 'Social Media Analytics',
-      difficulty: 'ADVANCED',
-      price: '₹4999',
-      description: 'Analytics platform for social media metrics with data visualization and reporting.',
-      image: socialMediaAnalyticsImg,
-      tags: ['Python', 'Django', 'Data Analysis', 'Charts', 'PostgreSQL']
-    },
-    {
-      id: 6,
-      title: 'Mobile Fitness Tracker',
-      difficulty: 'INTERMEDIATE',
-      price: '₹7999',
-      description: 'Cross-platform mobile app for fitness tracking with workout plans and progress monitoring.',
-      image: fitnessTrackerImg,
-      tags: ['React Native', 'SQLite', 'Health API', 'Charts']
-    }
-  ];
+  const projects = project_list
+    .filter(p => p.category === 'Software')
+    .map(p => ({
+      id: p._id,
+      title: p.name,
+      description: p.description,
+      image: `${url}/images/${p.image}`,
+      difficulty: (p.difficulty || 'Intermediate').toUpperCase(),
+      tags: p.tags || [],
+      price: `₹${p.price}`
+    }));
 
   const filteredProjects = projects.filter(project => {
     const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||

@@ -82,7 +82,7 @@ const Login = ({ isOpen, onClose, setShowLogin }) => {
         throw new Error('Server URL is not configured. Please check your CartContext.');
       }
 
-      const apiUrl = `${url}/user/${isLogin ? 'login' : 'register'}`;
+      const apiUrl = `${url}/api/user/${isLogin ? 'login' : 'register'}`;
       console.log('📡 Making request to:', apiUrl);
       
       // Prepare request body based on login/register mode

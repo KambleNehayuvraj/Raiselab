@@ -205,6 +205,16 @@
   margin: 0;
 }
 
+.payment-gateway-note {
+  padding: 0.85rem 1rem;
+  background: #eef7ff;
+  border: 1px solid #b6dcff;
+  border-radius: 8px;
+  color: #1e5c8c;
+  font-size: 0.9rem;
+  margin: 0 0 1rem 0;
+}
+
 .card-details {
   padding: 1.5rem;
   background: #f8f9fa;

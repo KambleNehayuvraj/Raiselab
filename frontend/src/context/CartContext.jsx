@@ -21,6 +21,7 @@ export const CartProvider = ({ children }) => {
   const [isAuthChecking, setIsAuthChecking] = useState(true); // New state for auth checking
   const url = import.meta.env.VITE_API_URL;
   const [project_list, setProjectList] = useState([]);
+  const [component_list, setComponentList] = useState([]);
 
   const fetchProjectList = async () => {
     try {
@@ -28,6 +29,15 @@ export const CartProvider = ({ children }) => {
       setProjectList(response.data.data);
     } catch (error) {
       console.error('Error fetching project list:', error);
+    }
+  };
+
+  const fetchComponentList = async () => {
+    try {
+      const response = await axios.get(url + "/api/component/list");
+      setComponentList(response.data.data);
+    } catch (error) {
+      console.error('Error fetching component list:', error);
     }
   };
 
@@ -62,6 +72,7 @@ export const CartProvider = ({ children }) => {
     async function initializeAuth() {
       setIsAuthChecking(true);
       await fetchProjectList();
+      await fetchComponentList();
       
       try {
         // Check for existing token
@@ -562,6 +573,7 @@ export const CartProvider = ({ children }) => {
     isAuthChecking, // New state
     loadCartFromServer,
     project_list,
+    component_list,
     refreshAuthStatus,
     isAuthenticated, // New helper
     getUserData, // New helper

@@ -10,10 +10,10 @@ const Header = () => {
   };
 
   const handleBrowseProjects = () => {
-    // Scroll to the "Choose Your Project Type" section
-    const projectTypeSection = document.getElementById('project-type-section');
-    if (projectTypeSection) {
-      projectTypeSection.scrollIntoView({ 
+    // Scroll to the projects section
+    const projectsSection = document.getElementById('projects-section');
+    if (projectsSection) {
+      projectsSection.scrollIntoView({ 
         behavior: 'smooth',
         block: 'start'
       });
