@@ -13,7 +13,7 @@ import 'react-toastify/dist/ReactToastify.css'
 
 const App = () => {
 
-  const url = "http://localhost:4000"
+  const url = import.meta.env.VITE_BACKEND_URL || "http://localhost:4000"
   const [token, setToken] = useState(localStorage.getItem("admin-token") || "")
 
   if (!token) {
