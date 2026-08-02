@@ -24,7 +24,7 @@ const PopularProjects = () => {
       id: p._id,
       title: p.name,
       description: p.description,
-      image: `${url}/images/${p.image}`,
+      image: p.image,
       difficulty: p.difficulty || 'Intermediate',
       difficultyColor: getDifficultyColor(p.difficulty),
       price: `₹${p.price}`,

@@ -1,5 +1,5 @@
 import componentModel from "../models/componentModel.js";
-import fs from 'fs';
+import { uploadBufferToCloudinary, deleteFromCloudinary } from "../config/cloudinary.js";
 
 // add component
 const addComponent = async (req, res) => {
@@ -7,19 +7,20 @@ const addComponent = async (req, res) => {
         return res.json({success:false,message:"No file uploaded"});
     }
 
-    let image_filename = `${req.file.filename}`;
-
-    const component = new componentModel({
-        name: req.body.name,
-        description: req.body.description || "",
-        price: req.body.price,
-        category: req.body.category,
-        brand: req.body.brand || "",
-        stock: req.body.stock || 0,
-        image: image_filename
-    })
-
     try {
+        const { url, public_id } = await uploadBufferToCloudinary(req.file.buffer, "projify/components");
+
+        const component = new componentModel({
+            name: req.body.name,
+            description: req.body.description || "",
+            price: req.body.price,
+            category: req.body.category,
+            brand: req.body.brand || "",
+            stock: req.body.stock || 0,
+            image: url,
+            imagePublicId: public_id
+        })
+
         await component.save();
         res.json({success:true, message:"Component Added"})
     } catch (error) {
@@ -43,7 +44,7 @@ const listComponent = async (req,res) => {
 const removeComponent = async (req,res) => {
     try{
         const component = await componentModel.findById(req.body.id);
-        fs.unlink(`uploads/images/${component.image}`,()=>{})
+        await deleteFromCloudinary(component.imagePublicId);
 
         await componentModel.findByIdAndDelete(req.body.id)
         res.json({success:true, message:"Component Removed"})
@@ -71,8 +72,10 @@ const updateComponent = async (req,res) => {
         };
 
         if (req.file) {
-            fs.unlink(`uploads/images/${existing.image}`, () => {});
-            updateData.image = req.file.filename;
+            const { url, public_id } = await uploadBufferToCloudinary(req.file.buffer, "projify/components");
+            await deleteFromCloudinary(existing.imagePublicId);
+            updateData.image = url;
+            updateData.imagePublicId = public_id;
         }
 
         await componentModel.findByIdAndUpdate(req.body.id, updateData);

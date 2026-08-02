@@ -33,7 +33,7 @@ const ElectronicComponents = () => {
     await addToCart({
       id: comp._id,
       name: comp.name,
-      image: `${url}/images/${comp.image}`,
+      image: comp.image,
       price: Number(comp.price),
       category: comp.category,
       type: 'component'
@@ -98,7 +98,7 @@ const ElectronicComponents = () => {
               {productsInCategory.map(comp => (
                 <div key={comp._id} className="component-card">
                   <div className="component-image">
-                    <img src={`${url}/images/${comp.image}`} alt={comp.name} />
+                    <img src={comp.image} alt={comp.name} />
                     {comp.stock <= 0 && <span className="out-of-stock-badge">Out of Stock</span>}
                   </div>
                   <div className="component-info">

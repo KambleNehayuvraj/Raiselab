@@ -5,14 +5,11 @@ import adminAuth from "../middleware/adminAuth.js";
 
 const componentRouter = express.Router();
 
-const storage = multer.diskStorage({
-    destination: "uploads/images",
-    filename:(req, file, cb)=>{
-        return cb(null,`${Date.now()}${file.originalname}`)
-    }
-});
-
-const upload = multer({storage:storage})
+// Keep the uploaded file in memory (as a Buffer) instead of writing it
+// to local disk - Render's disk is ephemeral and wipes on every
+// redeploy/restart, so we stream the buffer straight to Cloudinary in
+// the controller instead.
+const upload = multer({ storage: multer.memoryStorage() });
 
 componentRouter.post("/add", adminAuth, upload.single("image"), addComponent)
 componentRouter.get("/list", listComponent)

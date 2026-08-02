@@ -33,7 +33,7 @@ const ProjectDetail = () => {
     description: dbProject.description,
     longDescription: dbProject.longDescription || dbProject.description,
     difficulty: dbProject.difficulty || 'Intermediate',
-    image: `${url}/images/${dbProject.image}`,
+    image: dbProject.image,
     tags: dbProject.tags || [],
     price: `₹${dbProject.price}`,
     numericPrice: dbProject.price,

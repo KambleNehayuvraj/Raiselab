@@ -15,7 +15,7 @@ const HardwareProjects = () => {
       id: p._id,
       title: p.name,
       description: p.description,
-      image: `${url}/images/${p.image}`,
+      image: p.image,
       difficulty: p.difficulty,
       tags: p.tags || [],
       price: `₹${p.price}`,

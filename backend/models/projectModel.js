@@ -6,6 +6,7 @@ const projectSchema = new mongoose.Schema({
     longDescription: {type: String, default: ""},
     price: {type: Number, required: true}, // Fixed: Number not number
     image: {type: String, required: true},
+    imagePublicId: {type: String, default: ""}, // Cloudinary public_id, used to delete the image later
     category: {type: String, required: true}, // "Hardware" or "Software"
     difficulty: {type: String, default: "Intermediate"},
     tags: {type: [String], default: []},

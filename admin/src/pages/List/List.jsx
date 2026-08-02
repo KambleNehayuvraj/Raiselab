@@ -153,7 +153,7 @@ const List = ({url, token}) => {
         {list.map((item,index)=>{
           return(
             <div key={index} className='list-table-format'>
-              <img src={`${url}/images/` +item.image} alt="" />
+              <img src={item.image} alt="" />
               <p>{item.name}</p>
               <p>{item.category}</p>
               <p>₹{item.price}</p>
@@ -181,7 +181,7 @@ const List = ({url, token}) => {
                 <label htmlFor="edit-image" className="image-upload-container">
                   <div className="upload-content">
                     <img
-                      src={editImage ? URL.createObjectURL(editImage) : `${url}/images/${list.find(i => i._id === editingId)?.image}`}
+                      src={editImage ? URL.createObjectURL(editImage) : list.find(i => i._id === editingId)?.image}
                       alt=""
                     />
                     <span className="upload-text">Click to replace image</span>

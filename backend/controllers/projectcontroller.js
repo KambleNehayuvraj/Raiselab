@@ -1,16 +1,12 @@
-// controllers/projectController.js - Enhanced with file verification
+// controllers/projectController.js
 import projectModel from "../models/projectModel.js";
-import fs from 'fs';
+import { uploadBufferToCloudinary, deleteFromCloudinary } from "../config/cloudinary.js";
 
 // Add project item
 const addProject = async (req, res) => {
-    console.log('req.file:', req.file);  // Add this line
-    console.log('req.body:', req.body);
     if (!req.file) {
         return res.json({success:false,message:"No file uploaded"});
     }
-    
-    let image_filename = `${req.file.filename}`;
 
     // tags, features, and specifications arrive as JSON strings from FormData
     let tags = [];
@@ -29,21 +25,25 @@ const addProject = async (req, res) => {
         if (req.body.specifications) specifications = JSON.parse(req.body.specifications);
     } catch (e) { console.log('specifications parse error:', e); }
 
-    const project = new projectModel({
-        name:req.body.name,
-        description:req.body.description,
-        longDescription:req.body.longDescription || "",
-        price:req.body.price,
-        category:req.body.category,
-        image:image_filename,
-        difficulty:req.body.difficulty || "Intermediate",
-        tags,
-        features,
-        specifications,
-        github:req.body.github || "",
-        demo:req.body.demo || ""
-    })
     try {
+        const { url, public_id } = await uploadBufferToCloudinary(req.file.buffer, "projify/projects");
+
+        const project = new projectModel({
+            name:req.body.name,
+            description:req.body.description,
+            longDescription:req.body.longDescription || "",
+            price:req.body.price,
+            category:req.body.category,
+            image:url,
+            imagePublicId:public_id,
+            difficulty:req.body.difficulty || "Intermediate",
+            tags,
+            features,
+            specifications,
+            github:req.body.github || "",
+            demo:req.body.demo || ""
+        })
+
         await project.save();
         res.json({success:true,message:"Project Added"})
     } catch (error) {
@@ -67,16 +67,14 @@ const listProject = async (req,res) => {
 const removeProject = async (req,res) => {
     try{
         const project = await projectModel.findById(req.body.id);
-        fs.unlink(`uploads/images/${project.image}`,()=>{})
+        await deleteFromCloudinary(project.imagePublicId);
 
         await projectModel.findByIdAndDelete(req.body.id)
         res.json({success:true,message:"Project Removed"})
     }catch(error){
         console.log(error);
         res.json({success:false,message:"Error"})
-
     }
-
 }
 
 // update project
@@ -119,8 +117,10 @@ const updateProject = async (req,res) => {
 
         // Only replace the image if a new file was uploaded
         if (req.file) {
-            fs.unlink(`uploads/images/${existing.image}`, () => {});
-            updateData.image = req.file.filename;
+            const { url, public_id } = await uploadBufferToCloudinary(req.file.buffer, "projify/projects");
+            await deleteFromCloudinary(existing.imagePublicId);
+            updateData.image = url;
+            updateData.imagePublicId = public_id;
         }
 
         await projectModel.findByIdAndUpdate(req.body.id, updateData);
