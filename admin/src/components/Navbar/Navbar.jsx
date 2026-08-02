@@ -14,7 +14,7 @@ const Navbar = () => {
         </div>
         <span className='brand-name'>Raiselab</span>
       </div>
-      <img className='profile' src={assets.profile_image} alt="" />
+      {/* <img className='profile' src={assets.profile_image} alt="" /> */}
     </div>
   )
 }
